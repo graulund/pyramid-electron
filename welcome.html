@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Welcome to Pyramid</title>
+	<style>
+		body {
+			font-family: San Francisco, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, sans-serif;
+			color: #222227;
+			background-color: #fff;
+			overflow-x: hidden;
+			margin: 0;
+		}
+
+		a {
+			color: #29d;
+			font-weight: bold;
+			text-decoration: none;
+		}
+
+		a:hover {
+			text-decoration: underline;
+		}
+
+		.band {
+			display: flex;
+			width: 200%;
+			transition: .5s transform ease-in-out;
+		}
+
+		.band--second {
+			transform: translateX(-50%);
+		}
+
+		.q {
+			flex: 0 0 50%;
+			box-sizing: border-box;
+			padding: 50px;
+			overflow: auto;
+			font-size: 150%;
+			line-height: 1.5em;
+			color: #999;
+		}
+
+		.q h1 {
+			color: #334;
+			line-height: 1.3em;
+			margin: 0;
+		}
+
+		.q__local {
+			color: #7daf0d;
+		}
+
+		.q__connect {
+			color: #9172e8;
+		}
+
+		.q__form {
+			margin: 1em 0;
+		}
+
+		.q__form p {
+			margin: .5em 0;
+		}
+
+		input, button {
+			font-family: inherit;
+			font-size: inherit;
+		}
+
+		input {
+			box-sizing: border-box;
+			width: 100%;
+		}
+
+		::-webkit-input-placeholder {
+			color: #ddd;
+		}
+
+		button {
+			background-color: #29d;
+			border: none;
+			color: #fff;
+			font-weight: bold;
+			-webkit-appearance: none;
+			padding: 8px 16px;
+			border-radius: 6px;
+			cursor: pointer;
+		}
+
+		webview {
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			z-index: 200;
+		}
+
+		webview:not(.webview--active) {
+			position: absolute;
+			left: -999px;
+			right: auto;
+			bottom: auto;
+			top: auto;
+			width: 900px;
+			overflow: hidden;
+			pointer-events: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="band">
+		<div class="q" id="first">
+			<h1>Welcome to Pyramid!</h1>
+			<p>
+				Do you want to <a href="javascript://" class="q__local">start up Pyramid locally</a>,
+				or&nbsp;<a href="javascript://" class="q__connect">connect to an existing server</a>?
+			</p>
+		</div>
+
+		<div class="q" id="second">
+			<h1>Connect to Pyramid</h1>
+			<div class="q__form">
+				<p><label for="pyramid-address">Type the address here:</label></p>
+				<p><input type="text" id="pyramid-address" placeholder="http://..."></p>
+				<p><button id="pyramid-connect">Connect</button></p>
+			</div>
+		</div>
+	</div>
+
+	<webview src="about:blank"></webview>
+
+	<script>
+	const { ipcRenderer } = require("electron");
+	let band = document.getElementsByClassName("band")[0];
+	let addressInput = document.getElementById("pyramid-address");
+	let connectButton = document.getElementById("pyramid-connect");
+	let localButton = document.getElementsByClassName("q__local")[0];
+	let continueButton = document.getElementsByClassName("q__connect")[0];
+	let done = false;
+
+	localButton.addEventListener("click", function() {
+		if (!done) {
+			done = true;
+			ipcRenderer.send("start-local");
+		}
+	});
+
+	continueButton.addEventListener("click", function() {
+		band.className = "band band--second";
+		setTimeout(() => addressInput.focus(), 500);
+	});
+
+	connectButton.addEventListener("click", function() {
+		let serverUrl = addressInput.value;
+
+		if (serverUrl && !done) {
+			done = true;
+			ipcRenderer.send("start-connection", serverUrl);
+
+			//let wv = document.createElement("webview");
+			/*let wv = document.getElementsByTagName("webview")[0];
+			wv.className = "webview--active";
+			wv.src = serverUrl;
+			let dome = false;
+			wv.addEventListener("dom-ready", () => {
+				if (!dome) {
+					dome = true;
+					console.log("dom ready happened");
+					wv.loadURL(serverUrl);
+				}
+			});
+			document.body.appendChild(wv);*/
+		}
+	});
+	</script>
+</body>
+</html>

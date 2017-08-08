@@ -1,25 +1,25 @@
 const electron = require("electron");
 const path = require("path");
 const url = require("url");
-
-require("pyramid-irc");
+const Store = require("electron-store");
 
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
+const ipcMain = electron.ipcMain;
+const store = new Store();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow = null;
+var mainWindow = null;
 
 function createWindow() {
 	// Create the browser window.
-	mainWindow = new BrowserWindow({ width: 800, height: 600 });
-
-	// and load the index.html of the app.
-	mainWindow.loadURL("http://localhost:8887");
-
-	// Open the DevTools.
-	// mainWindow.webContents.openDevTools();
+	mainWindow = new BrowserWindow({
+		width: 800,
+		height: 600,
+		titleBarStyle: "hidden-inset",
+		nodeIntegration: true
+	});
 
 	// Emitted when the window is closed.
 	mainWindow.on("closed", function() {
@@ -30,10 +30,78 @@ function createWindow() {
 	});
 }
 
+function openRemote(serverUrl) {
+	// TODO: Check if URL is actually a Pyramid location
+	// TODO: Don't open remotes in a tab with sensitive information
+
+	// NO Node integration.
+
+	/*let newWindow = new BrowserWindow({
+		width: 800,
+		height: 600,
+		nodeIntegration: false
+	});
+
+	mainWindow.close();
+	newWindow.loadURL(serverUrl);
+	mainWindow = newWindow;*/
+
+	mainWindow.loadURL(serverUrl);
+}
+
+function openLocal() {
+	require("pyramid-irc");
+	setTimeout(() => mainWindow.loadURL("http://localhost:8887"), 2000);
+}
+
+function openWelcome() {
+	mainWindow.loadURL("file://" + path.join(__dirname, "welcome.html"));
+}
+
+function setLocal() {
+	store.set("mode", "local");
+	openLocal();
+}
+
+function setRemote(serverUrl) {
+	store.set("mode", "connection");
+	store.set("url", serverUrl);
+	openRemote(serverUrl);
+}
+
+ipcMain.on("start-local", function() {
+	console.log("starting local");
+	setLocal();
+});
+
+ipcMain.on("start-connection", function(evt, url) {
+	console.log("starting connection", url);
+	setRemote(url);
+});
+
+function startUp() {
+	let mode = store.get("mode");
+	let url = store.get("url");
+
+	createWindow();
+
+	if (mode === "local") {
+		openLocal();
+	}
+
+	else if (mode === "connection" && url) {
+		openRemote(url);
+	}
+
+	else {
+		openWelcome();
+	}
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on("ready", startUp);
 
 // Quit when all windows are closed.
 app.on("window-all-closed", function() {
