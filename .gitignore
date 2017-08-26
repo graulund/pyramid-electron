@@ -80,3 +80,6 @@ Session.vim
 .netrwhist
 *~
 .directory
+
+# Distribution directory
+dist/
