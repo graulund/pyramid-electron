@@ -44,7 +44,10 @@ function openRemote(serverUrl) {
 }
 
 function openLocal() {
-	require("pyramid-irc");
+	let userDataPath = app.getPath("userData");
+	let lib = require("pyramid-irc/lib");
+	lib.main.setLocalOverridePath(path.join(userDataPath, "pyramid"));
+	lib.init();
 	setTimeout(() => mainWindow.loadURL("http://localhost:8887"), 2000);
 }
 
