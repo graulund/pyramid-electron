@@ -66,6 +66,10 @@
 			margin: .5em 0;
 		}
 
+		p.notice {
+			font-size: 50%;
+		}
+
 		input, button {
 			font-family: inherit;
 			font-size: inherit;
@@ -128,6 +132,7 @@
 				<p><label for="pyramid-address">Type the address here:</label></p>
 				<p><input type="text" id="pyramid-address" placeholder="http://..."></p>
 				<p><button id="pyramid-connect">Connect</button></p>
+				<p class="notice">Note: Self-signed and expired HTTPS certificates are not supported.</p>
 			</div>
 		</div>
 	</div>
