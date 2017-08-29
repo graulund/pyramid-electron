@@ -1,6 +1,6 @@
 {
 	"name": "pyramid-electron",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"description": "Electron wrapper for Pyramid",
 	"author": {
 		"name": "Andy Graulund",
