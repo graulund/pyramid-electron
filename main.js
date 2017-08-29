@@ -106,7 +106,7 @@ function setUpMenu() {
 	if (label === "Edit") {
 		// Edit menu
 
-		submenu = submenu.concat([
+		menu[0].submenu = submenu.concat([
 			{ type: "separator" },
 			unsetAppMenuItem
 		]);
